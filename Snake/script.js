@@ -63,7 +63,10 @@ window.onload = function() {
     startButton = document.getElementById('start-btn');
     restartButton = document.getElementById('restart-btn');
     modeSelector = document.getElementById('game-mode');
-    player2Controls = document.getElementById('player2-controls');
+    
+    // Get control instructions elements
+    const singlePlayerControls = document.getElementById('single-player-controls');
+    const twoPlayerControls = document.getElementById('two-player-controls');
     
     startButton.addEventListener('click', startGame);
     restartButton.addEventListener('click', startGame);
@@ -72,11 +75,15 @@ window.onload = function() {
     modeSelector.addEventListener('change', function() {
         isTwoPlayerMode = this.value === 'two-player';
         if (isTwoPlayerMode) {
-            player2Controls.classList.remove('hidden');
+            // Show 2-player controls, hide single player controls
+            twoPlayerControls.classList.remove('hidden');
+            singlePlayerControls.classList.add('hidden');
             // Update score display for 2 players
             updateScoreDisplay();
         } else {
-            player2Controls.classList.add('hidden');
+            // Show single player controls, hide 2-player controls
+            singlePlayerControls.classList.remove('hidden');
+            twoPlayerControls.classList.add('hidden');
             // Reset to single player score display
             updateScoreDisplay();
         }
@@ -125,11 +132,17 @@ function startGame() {
     // Check if 2-player mode is active
     isTwoPlayerMode = modeSelector.value === 'two-player';
     
-    // Show/hide player 2 controls
+    // Get control instructions elements
+    const singlePlayerControls = document.getElementById('single-player-controls');
+    const twoPlayerControls = document.getElementById('two-player-controls');
+    
+    // Show/hide appropriate controls based on game mode
     if (isTwoPlayerMode) {
-        player2Controls.classList.remove('hidden');
+        twoPlayerControls.classList.remove('hidden');
+        singlePlayerControls.classList.add('hidden');
     } else {
-        player2Controls.classList.add('hidden');
+        singlePlayerControls.classList.remove('hidden');
+        twoPlayerControls.classList.add('hidden');
     }
     
     // Reset game state
@@ -183,33 +196,44 @@ function handleKeyPress(event) {
     
     // Prevent the default behavior of arrow keys and control keys
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 
-         'w', 'a', 's', 'd', 'W', 'A', 'S', 'D',
-         'i', 'j', 'k', 'l', 'I', 'J', 'K', 'L'].includes(key)) {
+         'w', 'a', 's', 'd', 'W', 'A', 'S', 'D'].includes(key)) {
         event.preventDefault();
     }
     
-    // Player 1 controls (Arrow keys or WASD)
-    // Prevent 180-degree turns (e.g., can't go right if currently moving left)
-    if ((key === 'ArrowUp' || key.toLowerCase() === 'w') && direction !== 'down') {
-        nextDirection = 'up';
-    } else if ((key === 'ArrowDown' || key.toLowerCase() === 's') && direction !== 'up') {
-        nextDirection = 'down';
-    } else if ((key === 'ArrowLeft' || key.toLowerCase() === 'a') && direction !== 'right') {
-        nextDirection = 'left';
-    } else if ((key === 'ArrowRight' || key.toLowerCase() === 'd') && direction !== 'left') {
-        nextDirection = 'right';
-    }
-    
-    // Player 2 controls (IJKL keys) - only in 2-player mode
     if (isTwoPlayerMode) {
-        if (key.toLowerCase() === 'i' && direction2 !== 'down') {
+        // 2-PLAYER MODE: Player 1 uses WASD, Player 2 uses Arrow keys
+        
+        // Player 1 controls (WASD keys only)
+        if (key.toLowerCase() === 'w' && direction !== 'down') {
+            nextDirection = 'up';
+        } else if (key.toLowerCase() === 's' && direction !== 'up') {
+            nextDirection = 'down';
+        } else if (key.toLowerCase() === 'a' && direction !== 'right') {
+            nextDirection = 'left';
+        } else if (key.toLowerCase() === 'd' && direction !== 'left') {
+            nextDirection = 'right';
+        }
+        
+        // Player 2 controls (Arrow keys only)
+        if (key === 'ArrowUp' && direction2 !== 'down') {
             nextDirection2 = 'up';
-        } else if (key.toLowerCase() === 'k' && direction2 !== 'up') {
+        } else if (key === 'ArrowDown' && direction2 !== 'up') {
             nextDirection2 = 'down';
-        } else if (key.toLowerCase() === 'j' && direction2 !== 'right') {
+        } else if (key === 'ArrowLeft' && direction2 !== 'right') {
             nextDirection2 = 'left';
-        } else if (key.toLowerCase() === 'l' && direction2 !== 'left') {
+        } else if (key === 'ArrowRight' && direction2 !== 'left') {
             nextDirection2 = 'right';
+        }
+    } else {
+        // 1-PLAYER MODE: Player can use either Arrow keys or WASD
+        if ((key === 'ArrowUp' || key.toLowerCase() === 'w') && direction !== 'down') {
+            nextDirection = 'up';
+        } else if ((key === 'ArrowDown' || key.toLowerCase() === 's') && direction !== 'up') {
+            nextDirection = 'down';
+        } else if ((key === 'ArrowLeft' || key.toLowerCase() === 'a') && direction !== 'right') {
+            nextDirection = 'left';
+        } else if ((key === 'ArrowRight' || key.toLowerCase() === 'd') && direction !== 'left') {
+            nextDirection = 'right';
         }
     }
 }
