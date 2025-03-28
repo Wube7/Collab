@@ -114,6 +114,7 @@ async function addGitHubCommitLink(id, commitHash, comment, repoUrl) {
   try {
     const connection = await getConnection();
     const workItemTrackingApi = await connection.getWorkItemTrackingApi();
+    const projectName = process.env.ADO_PROJECT;
     
     // Use the provided repo URL or construct from environment variables
     const gitHubRepo = repoUrl || process.env.GITHUB_REPO || 'https://github.com/Wube7/Collab';
@@ -121,32 +122,34 @@ async function addGitHubCommitLink(id, commitHash, comment, repoUrl) {
     // Create the full commit URL
     const commitUrl = `${gitHubRepo}/commit/${commitHash}`;
     
-    // This path format is critical - we need to make sure it's correct for adding a new relation
-    // When adding to a collection, use /relations/-
+    // Get the current work item to make sure it exists
+    const workItem = await workItemTrackingApi.getWorkItem(id);
+    
+    console.log(`Linking GitHub commit ${commitHash} to work item #${id} (${workItem.fields['System.Title']})`);
+    
+    // Instead of trying to directly manipulate relations, which may have permission issues,
+    // let's add a comment that includes the commit link. This will be more reliable.
+    const commentText = `<a href="${commitUrl}" target="_blank">GitHub Commit ${commitHash}</a>: ${comment}`;
+    
+    // Update the work item description to include the commit link
+    const description = workItem.fields['System.Description'] || '';
+    const updatedDescription = description + '<br><br>' + commentText;
+    
     const patchDocument = [
       {
         op: 'add',
-        path: '/relations/-',
-        value: {
-          rel: 'Hyperlink',
-          url: commitUrl,
-          attributes: {
-            comment: comment || `Commit: ${commitHash}`
-          }
-        }
+        path: '/fields/System.Description',
+        value: updatedDescription
       }
     ];
     
-    console.log('Patch document:', JSON.stringify(patchDocument, null, 2));
+    console.log('Using patch document:', JSON.stringify(patchDocument, null, 2));
     
-    // Update the work item with expanded options to include relations in response
+    // Update the work item
     const updatedWorkItem = await workItemTrackingApi.updateWorkItem(
       null,
       patchDocument,
-      id,
-      undefined,
-      undefined,
-      { $expand: 'Relations' } // Ensure we get relations back in the response
+      id
     );
     
     return updatedWorkItem;
