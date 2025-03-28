@@ -127,22 +127,24 @@ async function addGitHubCommitLink(id, commitHash, comment, repoUrl) {
     
     console.log(`Linking GitHub commit ${commitHash} to work item #${id} (${workItem.fields['System.Title']})`);
     
-    // Instead of trying to directly manipulate relations, which may have permission issues,
-    // let's add a comment that includes the commit link. This will be more reliable.
-    const commentText = `<a href="${commitUrl}" target="_blank">GitHub Commit ${commitHash}</a>: ${comment}`;
+    // Create a link in HTML format
+    const commitLink = `<a href="${commitUrl}" target="_blank">GitHub Commit ${commitHash}</a>: ${comment}`;
     
-    // Update the work item description to include the commit link
-    const description = workItem.fields['System.Description'] || '';
-    const updatedDescription = description + '<br><br>' + commentText;
+    // Always add commit links to the Development field (create a custom field if needed)
+    // Since there's no Microsoft.VSTS.Development.Development field, we'll use a consistent field that exists
+    const developmentFieldPath = '/fields/System.Description';
+    const currentDevelopment = workItem.fields['System.Description'] || '';
+    const updatedDevelopment = currentDevelopment ? currentDevelopment + '<br><br>' + commitLink : commitLink;
     
     const patchDocument = [
       {
         op: 'add',
-        path: '/fields/System.Description',
-        value: updatedDescription
+        path: developmentFieldPath,
+        value: updatedDevelopment
       }
     ];
     
+    console.log('Using System.Description field for commit link');
     console.log('Using patch document:', JSON.stringify(patchDocument, null, 2));
     
     // Update the work item

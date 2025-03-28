@@ -21,14 +21,15 @@ This document outlines the standard process to follow when developing new featur
 - Push the code back to GitHub
 
 ### 4. Update Work Item Status
-- Link the GitHub commit to the work item using the new link-commit command:
+- Link your GitHub commit to the work item in ADO using:
   ```
-  cd /path/to/ADO && node index.js link-commit [ID] [COMMIT_HASH] -c "Implementation comment"
+  cd /path/to/ADO && node index.js link-commit [ID] [COMMIT_HASH] "Brief description of changes"
   ```
-- Update the work item state to "Resolved":
+- Update the work item state to "Resolved"
   ```
-  cd /path/to/ADO && node index.js update-work-item [ID] -s "Resolved" -d "Resolution details"
+  cd /path/to/ADO && node index.js update-work-item [ID] -s "Resolved"
   ```
+- **Note**: GitHub commit links will be added to the Description field of the work item for traceability.
 
 ## Example Commands
 
@@ -42,10 +43,15 @@ cd /path/to/ADO && node index.js create-work-item "User Story" "As a user, I wan
 cd /path/to/ADO && node index.js create-work-item "Bug" "Bug title" -d "Bug description and steps to reproduce"
 ```
 
+### Linking GitHub Commits
+```
+cd /path/to/ADO && node index.js link-commit [ID] [COMMIT_HASH] "Implemented feature X"
+```
+
 ### Updating Work Item State
 ```
 cd /path/to/ADO && node index.js update-work-item [ID] -s "Active"
-cd /path/to/ADO && node index.js link-commit [ID] [COMMIT_HASH] -c "Implementation details"
+cd /path/to/ADO && node index.js update-work-item [ID] -d "Additional details about implementation"
 cd /path/to/ADO && node index.js update-work-item [ID] -s "Resolved" -d "Resolution details"
 ```
 
