@@ -5,7 +5,7 @@ const chalk = require('chalk');
 const dotenv = require('dotenv');
 const path = require('path');
 const { getWorkItemsByQuery, createWorkItem, updateWorkItem } = require('./lib/workItems');
-const { getProjects, getProject, getTeams, getTeamMembers, updateProjectDescription } = require('./lib/projects');
+const { getProjects, getProject, getTeams, getTeamMembers, updateProjectDescription, createProject } = require('./lib/projects');
 
 // Load environment variables
 dotenv.config();
@@ -66,6 +66,25 @@ program
       console.log(chalk.cyan(`Name: ${project.name}`));
       console.log(chalk.cyan(`ID: ${project.id}`));
       console.log(chalk.cyan(`New Description: ${project.description || 'N/A'}`));
+    } catch (error) {
+      console.error(chalk.red(`Error: ${error.message}`));
+    }
+  });
+
+// Add command to create a new project
+program
+  .command('create-project <name>')
+  .description('Create a new project')
+  .option('-d, --description <description>', 'Project description', 'Created with ADO CLI')
+  .action(async (name, options) => {
+    try {
+      console.log(chalk.yellow(`Creating project '${name}'...`));
+      const result = await createProject(name, options.description);
+      console.log(chalk.green(`\nProject Creation Initiated:`));
+      console.log(chalk.cyan(`Operation ID: ${result.id}`));
+      console.log(chalk.cyan(`Status: ${result.status}`));
+      console.log(chalk.cyan(`Message: ${result.message}`));
+      console.log(chalk.yellow(`Note: Project creation may take a few minutes to complete.`));
     } catch (error) {
       console.error(chalk.red(`Error: ${error.message}`));
     }

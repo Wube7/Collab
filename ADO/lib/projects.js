@@ -96,10 +96,54 @@ async function updateProjectDescription(projectNameOrId, description) {
   }
 }
 
+/**
+ * Create a new project
+ * @param {string} name - Project name
+ * @param {string} description - Project description
+ * @returns {Object} Created project
+ */
+async function createProject(name, description) {
+  try {
+    const connection = await getConnection();
+    const coreApi = await connection.getCoreApi();
+    
+    // Create project properties
+    const projectProperties = {
+      name: name,
+      description: description,
+      visibility: 'private',
+      capabilities: {
+        versioncontrol: {
+          sourceControlType: 'Git'
+        },
+        processTemplate: {
+          templateTypeId: '6b724908-ef14-45cf-84f8-768b5384da45' // Agile process template
+        }
+      }
+    };
+    
+    // Create the project
+    const createdProject = await coreApi.queueCreateProject(projectProperties);
+    
+    // Wait for the project to be created
+    const operationRef = await coreApi.getOperation(createdProject.id);
+    
+    return { 
+      id: operationRef.id,
+      status: operationRef.status,
+      message: 'Project creation initiated' 
+    };
+  } catch (error) {
+    console.error('Error details:', error);
+    throw new Error(`Failed to create project: ${error.message}`);
+  }
+}
+
 module.exports = {
   getProjects,
   getProject,
   getTeams,
   getTeamMembers,
-  updateProjectDescription
+  updateProjectDescription,
+  createProject
 };
