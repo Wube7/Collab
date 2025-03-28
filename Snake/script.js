@@ -254,33 +254,25 @@ function updateGame() {
         moveSnake2();
     }
     
-    // Check collisions for player 1
-    if (checkCollision(snake, snake)) {
-        if (isTwoPlayerMode) {
-            // In 2-player mode, if player 1 dies, player 2 wins
-            gameOver('player2');
-        } else {
-            gameOver('player1'); // Single player mode
-        }
-        return;
-    }
-    
-    // Check collisions for player 2 in 2-player mode
-    if (isTwoPlayerMode && checkCollision(snake2, snake2)) {
-        gameOver('player1');
-        return;
-    }
-    
-    // In 2-player mode, check if players collide with each other
+    // Check for collisions in 2-player mode (need to check both before declaring winner)
     if (isTwoPlayerMode) {
-        // Check if player 1 hits player 2
-        if (checkSnakeCollision(snake[0], snake2)) {
+        let player1Collided = checkCollision(snake, snake) || checkSnakeCollision(snake[0], snake2);
+        let player2Collided = checkCollision(snake2, snake2) || checkSnakeCollision(snake2[0], snake);
+        
+        // Handle the case where both players collide in the same frame
+        if (player1Collided && player2Collided) {
+            gameOver('tie');
+            return;
+        } else if (player1Collided) {
             gameOver('player2');
             return;
+        } else if (player2Collided) {
+            gameOver('player1');
+            return;
         }
-        
-        // Check if player 2 hits player 1
-        if (checkSnakeCollision(snake2[0], snake)) {
+    } else {
+        // Single player mode
+        if (checkCollision(snake, snake)) {
             gameOver('player1');
             return;
         }
@@ -494,6 +486,9 @@ function gameOver(winner) {
         effectPosition = { x: snake[0].x, y: snake[0].y };
     } else if (isTwoPlayerMode && winner === 'player1') {
         effectPosition = { x: snake2[0].x, y: snake2[0].y };
+    } else if (winner === 'tie') {
+        // For ties, show effect at center of screen
+        effectPosition = { x: GRID_WIDTH / 2, y: GRID_HEIGHT / 2 };
     } else {
         effectPosition = { x: snake[0].x, y: snake[0].y };
     }
@@ -514,8 +509,11 @@ function gameOver(winner) {
             if (winner === 'player1') {
                 winnerText.textContent = "Player 1 wins!";
                 finalScoreDisplay.textContent = `Player 1: ${score} - Player 2: ${score2}`;
-            } else {
+            } else if (winner === 'player2') {
                 winnerText.textContent = "Player 2 wins!";
+                finalScoreDisplay.textContent = `Player 1: ${score} - Player 2: ${score2}`;
+            } else if (winner === 'tie') {
+                winnerText.textContent = "It's a tie!";
                 finalScoreDisplay.textContent = `Player 1: ${score} - Player 2: ${score2}`;
             }
         } else {
