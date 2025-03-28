@@ -132,20 +132,20 @@ function startGame() {
 function handleKeyPress(event) {
     const key = event.key;
     
-    // Prevent the default behavior of arrow keys (scrolling the page)
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+    // Prevent the default behavior of arrow keys and WASD keys (scrolling the page)
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', 'W', 'A', 'S', 'D'].includes(key)) {
         event.preventDefault();
     }
     
     // Set the next direction based on key pressed
     // Prevent 180-degree turns (e.g., can't go right if currently moving left)
-    if (key === 'ArrowUp' && direction !== 'down') {
+    if ((key === 'ArrowUp' || key.toLowerCase() === 'w') && direction !== 'down') {
         nextDirection = 'up';
-    } else if (key === 'ArrowDown' && direction !== 'up') {
+    } else if ((key === 'ArrowDown' || key.toLowerCase() === 's') && direction !== 'up') {
         nextDirection = 'down';
-    } else if (key === 'ArrowLeft' && direction !== 'right') {
+    } else if ((key === 'ArrowLeft' || key.toLowerCase() === 'a') && direction !== 'right') {
         nextDirection = 'left';
-    } else if (key === 'ArrowRight' && direction !== 'left') {
+    } else if ((key === 'ArrowRight' || key.toLowerCase() === 'd') && direction !== 'left') {
         nextDirection = 'right';
     }
 }
