@@ -21,6 +21,7 @@ This document outlines the standard process to follow when developing new featur
 - Push the code back to GitHub
 
 ### 4. Update Work Item Status
+- Add a comment to the work item with the GitHub commit URL or ID that contains the code changes
 - Update the work item in ADO to change state to "Resolved"
 - Add details about the implementation or fix
 
@@ -39,6 +40,7 @@ cd /path/to/ADO && node index.js create-work-item "Bug" "Bug title" -d "Bug desc
 ### Updating Work Item State
 ```
 cd /path/to/ADO && node index.js update-work-item [ID] -s "Active"
+cd /path/to/ADO && node index.js update-work-item [ID] -d "GitHub commit: [COMMIT_URL_OR_ID]"
 cd /path/to/ADO && node index.js update-work-item [ID] -s "Resolved" -d "Resolution details"
 ```
 
