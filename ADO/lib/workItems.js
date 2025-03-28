@@ -121,7 +121,8 @@ async function addGitHubCommitLink(id, commitHash, comment, repoUrl) {
     // Create the full commit URL
     const commitUrl = `${gitHubRepo}/commit/${commitHash}`;
     
-    // Define patch operation to add hyperlink relation
+    // This path format is critical - we need to make sure it's correct for adding a new relation
+    // When adding to a collection, use /relations/-
     const patchDocument = [
       {
         op: 'add',
@@ -136,17 +137,53 @@ async function addGitHubCommitLink(id, commitHash, comment, repoUrl) {
       }
     ];
     
-    // Update the work item
+    console.log('Patch document:', JSON.stringify(patchDocument, null, 2));
+    
+    // Update the work item with expanded options to include relations in response
     const updatedWorkItem = await workItemTrackingApi.updateWorkItem(
       null,
       patchDocument,
-      id
+      id,
+      undefined,
+      undefined,
+      { $expand: 'Relations' } // Ensure we get relations back in the response
     );
     
     return updatedWorkItem;
   } catch (error) {
+    // Log the full error for debugging
     console.error('Error details:', error);
+    if (error.serverError) {
+      console.error('Server error:', error.serverError);
+    }
+    if (error.message) {
+      console.error('Error message:', error.message);
+    }
     throw new Error(`Failed to add GitHub commit link: ${error.message}`);
+  }
+}
+
+/**
+ * Get a single work item by ID
+ * @param {number} id - Work item ID
+ * @param {boolean} includeRelations - Whether to include relations in the result
+ * @returns {Object} Work item
+ */
+async function getWorkItem(id, includeRelations = true) {
+  try {
+    const connection = await getConnection();
+    const workItemTrackingApi = await connection.getWorkItemTrackingApi();
+    
+    // Define expand options to include relations if requested
+    const expandOptions = includeRelations ? { 
+      $expand: 'Relations'
+    } : undefined;
+    
+    // Get the work item with the specified ID
+    const workItem = await workItemTrackingApi.getWorkItem(id, undefined, undefined, expandOptions);
+    return workItem;
+  } catch (error) {
+    throw new Error(`Failed to get work item ${id}: ${error.message}`);
   }
 }
 
@@ -154,5 +191,6 @@ module.exports = {
   getWorkItemsByQuery,
   createWorkItem,
   updateWorkItem,
-  addGitHubCommitLink
+  addGitHubCommitLink,
+  getWorkItem
 };

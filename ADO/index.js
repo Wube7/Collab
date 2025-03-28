@@ -4,7 +4,7 @@ const { program } = require('commander');
 const chalk = require('chalk');
 const dotenv = require('dotenv');
 const path = require('path');
-const { getWorkItemsByQuery, createWorkItem, updateWorkItem, addGitHubCommitLink } = require('./lib/workItems');
+const { getWorkItemsByQuery, createWorkItem, updateWorkItem, addGitHubCommitLink, getWorkItem } = require('./lib/workItems');
 const { getProjects, getProject, getTeams, getTeamMembers, updateProjectDescription, createProject } = require('./lib/projects');
 
 // Load environment variables
@@ -233,6 +233,43 @@ program
       console.log(chalk.cyan(`Comment: ${options.comment}`));
       console.log(chalk.cyan(`Work Item Type: ${workItem.fields['System.WorkItemType']}`));
       console.log(chalk.cyan(`Work Item Title: ${workItem.fields['System.Title']}`));
+    } catch (error) {
+      console.error(chalk.red(`Error: ${error.message}`));
+    }
+  });
+
+program
+  .command('get-work-item <id>')
+  .description('Get detailed information about a work item including relations')
+  .option('-r, --relations', 'Include relations in the output', true)
+  .action(async (id, options) => {
+    try {
+      const workItem = await getWorkItem(id, options.relations);
+      
+      console.log(chalk.green(`\nWork Item #${id} Details:`));
+      console.log(chalk.cyan(`Title: ${workItem.fields['System.Title']}`));
+      console.log(chalk.cyan(`Type: ${workItem.fields['System.WorkItemType']}`));
+      console.log(chalk.cyan(`State: ${workItem.fields['System.State']}`));
+      
+      if (workItem.fields['System.Description']) {
+        console.log(chalk.cyan(`Description: ${workItem.fields['System.Description']}`));
+      }
+      
+      // Display relations if they exist
+      if (options.relations && workItem.relations && workItem.relations.length > 0) {
+        console.log(chalk.green('\nRelations:'));
+        workItem.relations.forEach((relation, index) => {
+          console.log(chalk.cyan(`${index + 1}. Type: ${relation.rel}`));
+          console.log(chalk.cyan(`   URL: ${relation.url}`));
+          
+          if (relation.attributes && relation.attributes.comment) {
+            console.log(chalk.cyan(`   Comment: ${relation.attributes.comment}`));
+          }
+        });
+      } else if (options.relations) {
+        console.log(chalk.yellow('\nNo relations found for this work item.'));
+      }
+      
     } catch (error) {
       console.error(chalk.red(`Error: ${error.message}`));
     }
