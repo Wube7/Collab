@@ -1,0 +1,15 @@
+{
+  "name": "ado-client-tool",
+  "version": "1.0.0",
+  "description": "Client tool to connect with Azure DevOps for project and story board management",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "azure-devops-node-api": "^11.0.1",
+    "dotenv": "^16.0.3",
+    "commander": "^9.4.1",
+    "chalk": "^4.1.2"
+  }
+}
