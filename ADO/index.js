@@ -4,7 +4,7 @@ const { program } = require('commander');
 const chalk = require('chalk');
 const dotenv = require('dotenv');
 const path = require('path');
-const { getWorkItemsByQuery, createWorkItem, updateWorkItem } = require('./lib/workItems');
+const { getWorkItemsByQuery, createWorkItem, updateWorkItem, addGitHubCommitLink } = require('./lib/workItems');
 const { getProjects, getProject, getTeams, getTeamMembers, updateProjectDescription, createProject } = require('./lib/projects');
 
 // Load environment variables
@@ -209,6 +209,30 @@ program
       console.log(chalk.cyan(`Title: ${workItem.fields['System.Title']}`));
       console.log(chalk.cyan(`State: ${workItem.fields['System.State']}`));
       console.log(chalk.cyan(`Type: ${workItem.fields['System.WorkItemType']}`));
+    } catch (error) {
+      console.error(chalk.red(`Error: ${error.message}`));
+    }
+  });
+
+program
+  .command('link-commit <workItemId> <commitHash>')
+  .description('Link a GitHub commit to a work item')
+  .option('-c, --comment <comment>', 'Comment to add with the link', 'Associated with this commit')
+  .option('-r, --repo <repoUrl>', 'GitHub repository URL (optional)')
+  .action(async (workItemId, commitHash, options) => {
+    try {
+      const workItem = await addGitHubCommitLink(
+        workItemId, 
+        commitHash, 
+        options.comment, 
+        options.repo
+      );
+      
+      console.log(chalk.green(`\nGitHub Commit Linked to Work Item #${workItemId}:`));
+      console.log(chalk.cyan(`Commit: ${commitHash}`));
+      console.log(chalk.cyan(`Comment: ${options.comment}`));
+      console.log(chalk.cyan(`Work Item Type: ${workItem.fields['System.WorkItemType']}`));
+      console.log(chalk.cyan(`Work Item Title: ${workItem.fields['System.Title']}`));
     } catch (error) {
       console.error(chalk.red(`Error: ${error.message}`));
     }

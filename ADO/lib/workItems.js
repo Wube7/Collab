@@ -102,8 +102,57 @@ async function updateWorkItem(id, updates) {
   }
 }
 
+/**
+ * Add a GitHub commit link to a work item
+ * @param {number} id - Work item ID
+ * @param {string} commitHash - GitHub commit hash
+ * @param {string} comment - Comment to add with the link
+ * @param {string} repoUrl - GitHub repository URL (optional, defaults to repository in .env)
+ * @returns {Object} Updated work item
+ */
+async function addGitHubCommitLink(id, commitHash, comment, repoUrl) {
+  try {
+    const connection = await getConnection();
+    const workItemTrackingApi = await connection.getWorkItemTrackingApi();
+    
+    // Use the provided repo URL or construct from environment variables
+    const gitHubRepo = repoUrl || process.env.GITHUB_REPO || 'https://github.com/Wube7/Collab';
+    
+    // Create the full commit URL
+    const commitUrl = `${gitHubRepo}/commit/${commitHash}`;
+    
+    // Define patch operation to add hyperlink relation
+    const patchDocument = [
+      {
+        op: 'add',
+        path: '/relations/-',
+        value: {
+          rel: 'Hyperlink',
+          url: commitUrl,
+          attributes: {
+            comment: comment || `Commit: ${commitHash}`
+          }
+        }
+      }
+    ];
+    
+    // Update the work item
+    const updatedWorkItem = await workItemTrackingApi.updateWorkItem(
+      null,
+      patchDocument,
+      id
+    );
+    
+    return updatedWorkItem;
+  } catch (error) {
+    console.error('Error details:', error);
+    throw new Error(`Failed to add GitHub commit link: ${error.message}`);
+  }
+}
+
 module.exports = {
   getWorkItemsByQuery,
   createWorkItem,
-  updateWorkItem
+  updateWorkItem,
+  addGitHubCommitLink
 };
