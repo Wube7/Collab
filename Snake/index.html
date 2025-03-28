@@ -14,23 +14,34 @@
                 <div class="score">Score: <span id="score">0</span></div>
                 <div class="high-score">High Score: <span id="high-score">0</span></div>
             </div>
-            <div class="difficulty-selector">
-                <label for="difficulty">Difficulty:</label>
-                <select id="difficulty">
-                    <option value="easy">Easy</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="hard">Hard</option>
-                </select>
+            <div class="game-settings">
+                <div class="difficulty-selector">
+                    <label for="difficulty">Difficulty:</label>
+                    <select id="difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <div class="mode-selector">
+                    <label for="game-mode">Mode:</label>
+                    <select id="game-mode">
+                        <option value="single" selected>1 Player</option>
+                        <option value="two-player">2 Players</option>
+                    </select>
+                </div>
             </div>
             <button id="start-btn">Start Game</button>
         </div>
         <canvas id="game-board" width="400" height="400"></canvas>
         <div class="game-controls">
             <p>Use arrow keys or WASD keys to control the snake. Press Space to pause.</p>
+            <p id="player2-controls" class="hidden">Player 2: Use IJKL keys to control (I=up, J=left, K=down, L=right).</p>
             <p class="mobile-instructions">On mobile, swipe in the direction you want to move.</p>
             <div id="game-over" class="hidden">
                 <h2>Game Over!</h2>
-                <p>Your final score: <span id="final-score">0</span></p>
+                <p id="winner-text"></p>
+                <p>Final score: <span id="final-score">0</span></p>
                 <button id="restart-btn">Play Again</button>
             </div>
         </div>
